@@ -1,9 +1,11 @@
 import csv
 import numpy as np
 
-data = np.genfromtxt('data/questionnaire.csv', delimiter=',', filling_values=0)
+DATASET = 'questionnaire'
 
-with open('data/questionnaire.csv') as f:
+data = np.genfromtxt('data/%s.csv' %DATASET, delimiter=',', filling_values=0)
+
+with open('data/%s.csv' %DATASET) as f:
 	reader = csv.reader(f)
 	for row in reader:
 		first_row = row
@@ -23,12 +25,18 @@ training_data = data[0:training_set_size]
 validation_data = data[training_set_size:validation_set_size]
 test_data = data[validation_set_size:data_size]
 
+#SMQ040 = 'Do you now smoke cigarettes?'
+Y_index = first_row.index('SMQ040')
 
-'''
-smoking_data is just the columns associated with smoking tobacco
-nonsmoking_data is the remainder of the data with smoking columns removed
-'''
+Y_train = training_data[:, Y_index]
+Y_val = validation_data[:, Y_index]
+Y_test = test_data[:, Y_index]
 
-nonsmoking_1, smoking_data, nonsmoking_2 = np.split(training_data, [first_smoking_index, last_smoking_index], axis=1)
 
-nonsmoking_data = np.concatenate((nonsmoking_1, nonsmoking_2), axis=1)
+train_1, smoking_data, train_2 = np.split(training_data, [first_smoking_index, last_smoking_index], axis=1)
+val_1, smoking_data, val_2 = np.split(validation_data, [first_smoking_index, last_smoking_index], axis=1)
+test_1, smoking_data, test_2 = np.split(test_data, [first_smoking_index, last_smoking_index], axis=1)
+
+X_train = np.concatenate((train_1, train_2), axis=1)
+X_val = np.concatenate((val_1, val_2), axis=1)
+X_test = np.concatenate((test_1, test_2), axis=1)
