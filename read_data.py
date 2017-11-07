@@ -20,10 +20,13 @@ def get_dataset():
 
 	data_size, num_features = data.shape
 
-	validation_set_size = round(data_size*.8)
-	training_set_size = round(validation_set_size*.8)
+	validation_set_size = int(round(data_size*.8))
+	training_set_size = int(round(validation_set_size*.8))
+
+
 
 	training_data = data[0:training_set_size]
+
 	validation_data = data[training_set_size:validation_set_size]
 	test_data = data[validation_set_size:data_size]
 
