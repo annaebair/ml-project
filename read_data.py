@@ -1,5 +1,8 @@
 import csv
 import numpy as np
+import copy
+
+# np.set_printoptions(threshold=10000)
 
 
 def get_dataset():
@@ -23,8 +26,6 @@ def get_dataset():
 	validation_set_size = int(round(data_size*.8))
 	training_set_size = int(round(validation_set_size*.8))
 
-
-
 	training_data = data[0:training_set_size]
 
 	validation_data = data[training_set_size:validation_set_size]
@@ -34,9 +35,9 @@ def get_dataset():
 	#SMQ040 = 'Do you now smoke cigarettes?'
 	Y_index = first_row.index('SMQ040')
 
-	Y_train = training_data[:, Y_index]
-	Y_val = validation_data[:, Y_index]
-	Y_test = test_data[:, Y_index]
+	Y_train = _norm_Y_data(training_data[:, Y_index])
+	Y_val = _norm_Y_data(validation_data[:, Y_index])
+	Y_test = _norm_Y_data(test_data[:, Y_index])
 
 
 	train_1, smoking_data, train_2 = np.split(training_data, [first_smoking_index, last_smoking_index], axis=1)
@@ -47,23 +48,52 @@ def get_dataset():
 	X_val = np.concatenate((val_1, val_2), axis=1)
 	X_test = np.concatenate((test_1, test_2), axis=1)
 
+	X_train_norm, Y_train_norm = _get_nonzero_rows(X_train, Y_train)
+	X_val_norm, Y_val_norm = _get_nonzero_rows(X_val, Y_val)
+	X_test_norm, Y_test_norm = _get_nonzero_rows(X_test, Y_test)
+
+	return X_train_norm, Y_train_norm, X_val_norm, Y_val_norm, X_test_norm, Y_test_norm
 
 
-	return X_train, Y_train, X_val, Y_val, X_test, Y_test
+def _norm_Y_data(Y):
+	new_Y = copy.deepcopy(Y)
+
+	for i in range(len(Y)):
+		if (Y[i] == 1) or (Y[i] == 2):
+			new_Y[i] = 1
+		elif Y[i] == 0:
+			new_Y[i] = 0
+		else:
+			new_Y[i] = -1
+
+	return new_Y
 
 
+def _get_nonzero_rows(X, Y):
+	new_X = copy.deepcopy(X)
+	new_Y = copy.deepcopy(Y)
+
+	indices = []
+	for i in range(len(Y)):
+		if Y[i] == 0:
+			indices.append(i)
+
+	new_Y = np.delete(new_Y, indices)
+	new_X = np.delete(new_X, indices, 0)
+
+	return new_X, new_Y
 
 
 def get_traindata():
 	return get_dataset()[0], get_dataset()[1]
 
+
 def get_valdata():
 	return get_dataset()[2], get_dataset()[3]
 
+
 def get_testdata(): 
 	return get_dataset()[4], get_dataset()[5]
-
-
 
 
 
