@@ -52,13 +52,13 @@ def get_dataset():
 
 
 def get_traindata():
-	return get_dataset(0), get_dataset(1)
+	return get_dataset()[0], get_dataset()[1]
 
 def get_valdata():
-	return get_dataset(2), get_dataset(3)
+	return get_dataset()[2], get_dataset()[3]
 
 def get_testdata(): 
-	return get_dataset(4), get_dataset(5)
+	return get_dataset()[4], get_dataset()[5]
 
 
 
