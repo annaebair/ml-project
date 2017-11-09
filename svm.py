@@ -63,6 +63,19 @@ if __name__ == "__main__":
 
 
 
+'''
+Basic SVM Score:  0.510101010101
+SVM with L1 regularization Score:  0.765151515152
+
+Best score:  0.835265700483
+Best C:  0.01
+Best penalty:  l1
+Best loss:  squared_hinge
+Best dual:  False
+
+'''
+
+
 
 
 
