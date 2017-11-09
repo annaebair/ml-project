@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.svm import LinearSVC
 from sklearn.model_selection import GridSearchCV
 import read_data
+from sklearn.svm import SVC
 
 
 
@@ -30,7 +31,7 @@ def tune_SVM():
 	# tuning hyperparameters
 	print ("-------- tuning hyperparameters---------")
 
-	param_grid = {'C': [0.01, 0.1, 1, 10, 100, 1000], 
+	param_grid = {'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000], 
 	              'penalty': ['l1', 'l2'],
 	              'loss': ['hinge', 'squared_hinge'],
 	             'dual':[False, True]}
@@ -43,6 +44,15 @@ def tune_SVM():
 	print("Best C: ", svm_tune.best_estimator_.C)
 	print("Best penalty: ", svm_tune.best_estimator_.penalty)
 	print("Best loss: ", svm_tune.best_estimator_.loss)
+
+
+def train_RBFSVM():
+    print ("-------- RBF Kernel SVM ---------")
+
+    rbf_svm = SVC()
+    rbf_svm.fit(X_train, y_train)
+    print("RBF Kernel SVM Score: ", rbf_svm.score(X_val, y_val)) 
+
 
 
 
@@ -59,6 +69,7 @@ if __name__ == "__main__":
 
     train_basicSVM()
     train_L1SVM()
+    train_RBFSVM()
     tune_SVM()
 
 
