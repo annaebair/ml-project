@@ -13,7 +13,7 @@ y_train_and_val = np.concatenate((y_train, y_val))
 
 print(X_train.shape)
 print(y_train.shape)
-p = 'l2'
+
 LR = linear_model.LogisticRegression()
 
 LR.fit(X_train,y_train)
@@ -31,6 +31,7 @@ print(clf.best_estimator_)
 print("Best score: ", clf.best_score_)
 print("Best C: ", clf.best_estimator_.C)
 print("Best penalty: ", clf.best_estimator_.penalty)
+
 
 
 '''
