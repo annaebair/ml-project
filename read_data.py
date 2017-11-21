@@ -1,6 +1,7 @@
 import csv
 import numpy as np
 import copy
+import matplotlib.pyplot as plt
 
 # np.set_printoptions(threshold=10000)
 
@@ -8,7 +9,7 @@ import copy
 def get_dataset():
 	DATASET = 'questionnaire'
 
-	data = np.genfromtxt('data/%s.csv' %DATASET, delimiter=',', filling_values=0)
+	data = np.genfromtxt('data/%s.csv' %DATASET, delimiter=',', filling_values=99.99)
 
 	with open('data/%s.csv' %DATASET) as f:
 		reader = csv.reader(f)
@@ -94,6 +95,46 @@ def get_valdata():
 
 def get_testdata(): 
 	return get_dataset()[4], get_dataset()[5]
+
+
+
+def clean_data(spar,X,Y): 
+    #X, Y = get_traindata()
+    #print ("X size :",X.shape)
+    #print ("Y size :",Y.shape)
+    count = 0
+    i= 0
+    L= len(X[0])
+    while i < L:
+        #print (i)
+        #print (X.shape)
+        n=1.0 - np.count_nonzero(X[:,i] == 99.99) *1.0 / len(X)
+        #print("hello")
+        if n <= spar:
+            
+            X= np.delete(X,i,1)
+            Y= np.delete(Y,i)
+            L -= 1
+        else:
+            count+=1
+            i += 1
+            
+    return count , X, Y
+
+def spars_plot():        
+    X, Y = get_traindata()        
+    xaxis=np.arange(0.0, 1.0, 0.01)
+    yaxis=[clean_data(i,X,Y)[0] for i in np.arange(0.0, 1.0, 0.01)]
+    
+    plt.plot(xaxis , yaxis)
+    plt.ylabel('# of columns')
+    plt.xlabel('sparsity')
+    plt.show()
+
+#spars_plot()
+
+
+
 
 
 
