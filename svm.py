@@ -3,6 +3,7 @@ from sklearn.svm import LinearSVC
 from sklearn.model_selection import GridSearchCV
 import read_data
 from sklearn.svm import SVC
+import pca
 
 
 
@@ -57,6 +58,19 @@ def train_RBFSVM():
 
 
 
+def train_pca_SVM(num_components):
+
+	#train SVM with PCA model 
+	print ("------training basic SVM L2 model----------")
+
+	X_transform = pca.apply_pca(num_components)
+
+	basic_svm = LinearSVC()
+	basic_svm.fit(X_transform, y_train)
+	print("SVM Score with PCA with ", num_components, "components: ", basic_svm.score(X_val, y_val))
+
+
+
 if __name__ == "__main__":
 
     print ("--------------- LOADING DATA -------------------")
@@ -72,11 +86,15 @@ if __name__ == "__main__":
     train_RBFSVM()
     tune_SVM()
 
+    train_pca_SVM(num_components = 20)
+
 
 
 '''
 Basic SVM Score:  0.510101010101
 SVM with L1 regularization Score:  0.765151515152
+
+----tuning hyperparameters
 
 Best score:  0.835265700483
 Best C:  0.01
