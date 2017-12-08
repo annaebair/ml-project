@@ -98,7 +98,7 @@ def get_testdata():
 
 
 
-def clean_data(spar,X,Y): 
+def clean_column(spar,X,Y): 
     #X, Y = get_traindata()
     #print ("X size :",X.shape)
     #print ("Y size :",Y.shape)
@@ -113,6 +113,23 @@ def clean_data(spar,X,Y):
         if n <= spar:
             
             X= np.delete(X,i,1)
+            L -= 1
+        else:
+            count+=1
+            i += 1
+            
+    return count , X, Y
+
+def clean_row(spar,X,Y):
+    count = 0
+    i= 0
+    L= len(X)
+    while i < L:
+        n=1.0 - np.count_nonzero(X[i] == 99.99) *1.0 / len(X[i])
+        
+        if n <= spar:
+            
+            X= np.delete(X,i,0)
             Y= np.delete(Y,i)
             L -= 1
         else:
@@ -121,10 +138,23 @@ def clean_data(spar,X,Y):
             
     return count , X, Y
 
+def clean_data(spar,X,Y):
+    print("input data: ",X.shape)
+    _,X1,Y1 = clean_column(spar,X,Y)
+    print("column cleaned: ",X1.shape)
+    _,X2,Y2 = clean_row(spar,X1,Y1)
+    print("final cleaned: ",X2.shape)
+    return  X2 , Y2
+    
+ 
+X, Y = get_traindata() 
+clean_data(.99,X,Y)
+
+
 def spars_plot():        
     X, Y = get_traindata()        
     xaxis=np.arange(0.0, 1.0, 0.01)
-    yaxis=[clean_data(i,X,Y)[0] for i in np.arange(0.0, 1.0, 0.01)]
+    yaxis=[clean_column(i,X,Y)[0] for i in np.arange(0.0, 1.0, 0.01)]
     
     plt.plot(xaxis , yaxis)
     plt.ylabel('# of columns')
