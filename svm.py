@@ -1,13 +1,12 @@
 import numpy as np
 from sklearn.svm import LinearSVC
 from sklearn.model_selection import GridSearchCV
-import read_data
 from sklearn.svm import SVC
+import read_data
 import pca
+from imputation import get_imputed_traindata, get_imputed_valdata
 
-
-
-
+USE_IMPUTED_DATA = True
 
 def train_basicSVM():
 
@@ -55,38 +54,51 @@ def train_RBFSVM():
     print("RBF Kernel SVM Score: ", rbf_svm.score(X_val, y_val)) 
 
 
-
-
-
 def train_pca_SVM(num_components):
 
 	#train SVM with PCA model 
-	print ("------training basic SVM L2 model----------")
+	print ("------training PCA model----------")
 
-	X_transform = pca.apply_pca(num_components)
+	X_transform = pca.apply_pca(X_train, num_components)
 
 	basic_svm = LinearSVC()
 	basic_svm.fit(X_transform, y_train)
 	print("SVM Score with PCA with ", num_components, "components: ", basic_svm.score(X_val, y_val))
 
 
-
 if __name__ == "__main__":
 
-    print ("--------------- LOADING DATA -------------------")
-    X_train, y_train = read_data.get_traindata()
-    X_val, y_val = read_data.get_valdata()
-    X_train_and_val = np.concatenate((X_train, X_val))
-    y_train_and_val = np.concatenate((y_train, y_val))
+	if USE_IMPUTED_DATA:
+		print ("--------------- LOADING DATA -------------------")
+		X_train, y_train = get_imputed_traindata()
+		X_val, y_val = get_imputed_valdata()
+		X_train_and_val = np.concatenate((X_train, X_val))
+		y_train_and_val = np.concatenate((y_train, y_val))
 
-    print ("--------------- DATA IS LOADED -------------------")
+		print ("--------------- DATA IS LOADED -------------------")
 
-    train_basicSVM()
-    train_L1SVM()
-    train_RBFSVM()
-    tune_SVM()
+		train_basicSVM()
+		train_L1SVM()
+		train_RBFSVM()
+		tune_SVM()
 
-    train_pca_SVM(num_components = 20)
+		train_pca_SVM(20)
+
+	# else:
+	#     print ("--------------- LOADING DATA -------------------")
+	#     X_train, y_train = read_data.get_traindata()
+	#     X_val, y_val = read_data.get_valdata()
+	#     X_train_and_val = np.concatenate((X_train, X_val))
+	#     y_train_and_val = np.concatenate((y_train, y_val))
+
+	#     print ("--------------- DATA IS LOADED -------------------")
+
+	#     train_basicSVM()
+	#     train_L1SVM()
+	#     train_RBFSVM()
+	#     tune_SVM()
+
+	#     train_pca_SVM(num_components = 20)
 
 
 
@@ -102,16 +114,12 @@ Best penalty:  l1
 Best loss:  squared_hinge
 Best dual:  False
 
+
+With Imputation:
+Best score:  0.662662662663
+Best C:  1
+Best penalty:  l1
+Best loss:  squared_hinge
+
 '''
-
-
-
-
-
-
-
-
-
-
-
 
