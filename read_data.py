@@ -168,8 +168,8 @@ def get_data():
 	return X, Y, headers
 
 
-def get_split_data(sparsity):
-
+def get_split_data():
+	sparsity = 0.9
 	X, Y, headers = get_data()
 	X, Y, headers = clean_data(sparsity, X, Y, headers)
 	X_train, Y_train, X_val, Y_val, X_test, Y_test = _split_data(X, Y)
@@ -177,13 +177,13 @@ def get_split_data(sparsity):
 
 
 def get_traindata():
-	
-	X, Y = get_split_data[0], get_split_data[1]
+
+	X, Y = get_split_data()[0], get_split_data()[1]
 	return X, Y
 
 
 if __name__ == "__main__":
-	X_train, Y_train, X_val, Y_val, X_test, Y_test, headers = get_split_data(0.9)
+	X_train, Y_train, X_val, Y_val, X_test, Y_test, headers = get_split_data()
 	print("headers length: ", len(headers))
 	# print("X shape: ", X.shape)
 	# print("Y shape: ", Y.shape)

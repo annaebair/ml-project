@@ -7,8 +7,7 @@ from sklearn.preprocessing import Imputer
 
 np.set_printoptions(threshold=10000)
 
-sparsity = 0.50
-X_train, Y_train, X_val, Y_val, X_test, Y_test, headers = get_split_data(sparsity)
+X_train, Y_train, X_val, Y_val, X_test, Y_test, headers = get_split_data()
 np.place(X_train, X_train==99.99, [np.nan])
 
 #### MICE ####
