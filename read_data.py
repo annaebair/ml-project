@@ -16,6 +16,10 @@ def read_dataset():
 		reader = csv.reader(f)
 		headers = next(reader)
 
+	weird_col_index = headers.index('SMAQUEX.y')
+	headers.remove('SMAQUEX.y')
+	np.delete(data, weird_col_index, axis=1)
+
 	return data, headers
 
 
@@ -26,52 +30,44 @@ def remove_smoking_columns(data, headers):
 	first_smoking_index = headers.index('SMQ020')
 	last_smoking_index = headers.index('SMQ840')
 
-	training_data, validation_data, test_data = _split_data(data)
-
 	#SMQ040 = 'Do you now smoke cigarettes?'
 	Y_index = headers.index('SMQ040')
 
-	Y_train = training_data[:, Y_index]
-	Y_val = validation_data[:, Y_index]
-	Y_test = test_data[:, Y_index]
+	Y = data[:, Y_index]
 
-	train_1, smoking_data, train_2 = np.split(training_data, [first_smoking_index, last_smoking_index+1], axis=1)
-	val_1, smoking_data, val_2 = np.split(validation_data, [first_smoking_index, last_smoking_index+1], axis=1)
-	test_1, smoking_data, test_2 = np.split(test_data, [first_smoking_index, last_smoking_index+1], axis=1)
+	data_1, smoking, data_2 = np.split(data, [first_smoking_index, last_smoking_index+1], axis=1)
+	X = np.concatenate((data_1, data_2), axis=1)
+
 	headers_1, smoking_headers, headers_2 = np.split(headers, [first_smoking_index, last_smoking_index+1])
-
-	X_train = np.concatenate((train_1, train_2), axis=1)
-	X_val = np.concatenate((val_1, val_2), axis=1)
-	X_test = np.concatenate((test_1, test_2), axis=1)
 	nonsmoking_headers = np.concatenate((headers_1, headers_2))
 
-	return X_train, Y_train, X_val, Y_val, X_test, Y_test, nonsmoking_headers
-
-def remove_missing_data_rows(X_train, Y_train, X_val, Y_val, X_test, Y_test):
+	return X, Y, nonsmoking_headers
 
 
-	Y_train, Y_val, Y_test = _norm_Y_data(Y_train), _norm_Y_data(Y_val), _norm_Y_data(Y_test)
+def remove_missing_data_rows(X, Y):
 
-	X_train_norm, Y_train_norm = _get_nonzero_rows(X_train, Y_train)
-	X_val_norm, Y_val_norm = _get_nonzero_rows(X_val, Y_val)
-	X_test_norm, Y_test_norm = _get_nonzero_rows(X_test, Y_test)
+	Y = _norm_Y_data(Y)
+	X, Y = _get_nonzero_rows(X, Y)
 
-	return X_train_norm, Y_train_norm, X_val_norm, Y_val_norm, X_test_norm, Y_test_norm
+	return X, Y
 	
 
-def _split_data(data):
+def _split_data(X, Y):
 
-	data_size, num_features = data.shape
+	data_size, num_features = X.shape
 
 	validation_set_size = int(round(data_size*.8))
 	training_set_size = int(round(validation_set_size*.8))
 
-	training_data = data[0:training_set_size]
+	X_train = X[0:training_set_size]
+	X_val = X[training_set_size:validation_set_size]
+	X_test = X[validation_set_size:data_size]
 
-	validation_data = data[training_set_size:validation_set_size]
-	test_data = data[validation_set_size:data_size]
+	Y_train = Y[0:training_set_size]
+	Y_val = Y[training_set_size:validation_set_size]
+	Y_test = Y[validation_set_size:data_size]
 
-	return training_data, validation_data, test_data
+	return X_train, Y_train, X_val, Y_val, X_test, Y_test
 
 
 def _norm_Y_data(Y):
@@ -106,11 +102,11 @@ def _get_nonzero_rows(X, Y):
 
 def clean_data(sparsity, X, Y, headers):
 
-	print("input data: ", X.shape)
+	# print("input data: ", X.shape)
 	_, X1, Y1, headers = clean_column(sparsity, X, Y, headers)
-	print("column cleaned: ", X1.shape)
+	# print("column cleaned: ", X1.shape)
 	_, X2, Y2 = clean_row(sparsity, X1, Y1)
-	print("final cleaned: ", X2.shape)
+	# print("final cleaned: ", X2.shape)
 
 	return  X2, Y2, headers
 
@@ -136,21 +132,19 @@ def clean_column(sparsity, X, Y, headers):
 
 def clean_row(sparsity, X, Y):
     count = 0
-    i= 0
-    L= len(X)
+    i = 0
+    L = len(X)
     while i < L:
-        n=1.0 - np.count_nonzero(X[i] == 99.99) *1.0 / len(X[i])
-        
+        n = 1.0 - np.count_nonzero(X[i] == 99.99) * 1.0 / len(X[i])
         if n <= sparsity:
-            
-            X= np.delete(X,i,0)
-            Y= np.delete(Y,i)
+            X = np.delete(X, i, 0)
+            Y = np.delete(Y, i)
             L -= 1
         else:
-            count+=1
+            count += 1
             i += 1
             
-    return count , X, Y
+    return count, X, Y
     
 
 def spars_plot():
@@ -168,21 +162,34 @@ def spars_plot():
 def get_data():
 
 	data, headers = read_dataset()
-	X_train, Y_train, X_val, Y_val, X_test, Y_test, headers = remove_smoking_columns(data, headers)
-	X_train, Y_train, X_val, Y_val, X_test, Y_test = remove_missing_data_rows(X_train, Y_train, X_val, Y_val, X_test, Y_test)
+	X, Y, headers = remove_smoking_columns(data, headers)
+	X, Y = remove_missing_data_rows(X, Y)
+
+	return X, Y, headers
+
+
+def get_split_data(sparsity):
+
+	X, Y, headers = get_data()
+	X, Y, headers = clean_data(sparsity, X, Y, headers)
+	X_train, Y_train, X_val, Y_val, X_test, Y_test = _split_data(X, Y)
 	return X_train, Y_train, X_val, Y_val, X_test, Y_test, headers
 
 
 def get_traindata():
-
-	X_train, Y_train = get_data()[0], get_data()[1]
-	return X_train, Y_train
+	
+	X, Y = get_split_data[0], get_split_data[1]
+	return X, Y
 
 
 if __name__ == "__main__":
-	X_train, Y_train, X_val, Y_val, X_test, Y_test, headers = get_data()
-	sparsity = 0.9
-	X, Y, headers = clean_data(sparsity, X_train, Y_train, headers)
-	print("X shape: ", X.shape)
-	print("Y shape: ", Y.shape)
+	X_train, Y_train, X_val, Y_val, X_test, Y_test, headers = get_split_data(0.9)
 	print("headers length: ", len(headers))
+	# print("X shape: ", X.shape)
+	# print("Y shape: ", Y.shape)
+	print("X_train shape: ", X_train.shape)
+	print("Y_train shape: ", Y_train.shape)
+	print("X_val shape: ", X_val.shape)
+	print("Y_val shape: ", Y_val.shape)
+	print("X_test shape: ", X_test.shape)
+	print("Y_test shape: ", Y_test.shape)
