@@ -117,6 +117,37 @@ if __name__ == "__main__":
 	#     train_pca_SVM(num_components = 20)
 
 
+def train_SparsePCA_SVM(num_components):
+
+	#train SVM with PCA model 
+	print ("------training SparsePCA model----------")
+
+	X_transform = pca.apply_SparsePCA(X_train, num_components)
+
+	basic_svm = LinearSVC()
+	basic_svm.fit(X_transform, y_train)
+	print("SVM Score with SparsePCA with ", num_components, "components: ", basic_svm.score(X_val, y_val))
+
+
+if __name__ == "__main__":
+
+	if USE_IMPUTED_DATA:
+		print ("--------------- LOADING DATA -------------------")
+		X_train, y_train = get_imputed_traindata()
+		X_val, y_val = get_imputed_valdata()
+		X_train_and_val = np.concatenate((X_train, X_val))
+		y_train_and_val = np.concatenate((y_train, y_val))
+
+		print ("--------------- DATA IS LOADED -------------------")
+
+		train_basicSVM()
+		train_L1SVM()
+		train_RBFSVM()
+		tune_SVM()
+
+		train_SparsePCA_SVM(20)
+
+
 
 '''
 Basic SVM Score:  0.510101010101
