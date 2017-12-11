@@ -4,34 +4,49 @@ import numpy as np
 from statsmodels.imputation import mice
 import statsmodels.api as sm
 from sklearn.preprocessing import Imputer
+from fancyimpute import KNN, MICE
 
 np.set_printoptions(threshold=10000)
 
 X_train, Y_train, X_val, Y_val, X_test, Y_test, headers = get_split_data()
 np.place(X_train, X_train==99.99, [np.nan])
+np.place(X_val, X_val==99.99, [np.nan])
+np.place(X_test, X_test==99.99, [np.nan])
 
 #### MICE ####
 
 
-# data = pd.DataFrame(clean_X)
+# data = pd.DataFrame(X_train)
 # data.columns = headers
 # print("columns: ", data.columns)
 # imp = mice.MICEData(data)
 
 
-# print(imp)
-# model=mice.MICE(model_formula=None, model_class=sm.OLS, data=imp)
 # print(imp.data)
+# model=mice.MICE(model_formula='BPQ020', model_class=sm.OLS, data=imp)
+# # print(imp.data)
 # results=model.fit()
 # print(results.summary())
 
 
 #### Sklearn Imputer ####
 
-imp = Imputer(strategy='mean', axis=0)
-X_train_new = imp.fit_transform(X_train)
-X_val_new = imp.fit_transform(X_val)
-X_test_new = imp.fit_transform(X_test)
+# imp = Imputer(strategy='most_frequent', axis=1)
+# X_train_new = imp.fit_transform(X_train)
+# X_val_new = imp.fit_transform(X_val)
+# X_test_new = imp.fit_transform(X_test)
+
+
+#### FancyImpute ####
+## KNN ##
+X_train_new = KNN(k=5).complete(X_train)
+X_val_new = KNN(k=5).complete(X_val)
+X_test_new = KNN(k=5).complete(X_test)
+
+## MICE ##
+# X_train_new = MICE(init_fill_method='median').complete(X_train)
+# X_val_new = MICE(init_fill_method='median').complete(X_val)
+# X_test_new = MICE(init_fill_method='median').complete(X_test)
 
 
 def get_imputed_traindata():
