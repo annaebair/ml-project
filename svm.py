@@ -26,7 +26,6 @@ def train_L1SVM():
 	print("SVM with L1 regularization Score: ", svm_lasso.score(X_val, y_val))
 
 
-
 def tune_SVM():
 	# tuning hyperparameters
 	print ("-------- tuning hyperparameters---------")

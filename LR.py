@@ -54,4 +54,10 @@ Best score:  0.666166166166
 Best C:  0.1
 Best penalty:  l1
 
+.7 sparsity, KNN imputation:
+Best score:  0.865853658537
+Best C:  0.1
+Best penalty:  l1
+
+
 '''
