@@ -8,11 +8,23 @@ import numpy as np
 from read_data import *
 from scipy.spatial.distance import cosine
 from scipy import stats
+from math import *
 
 np.set_printoptions(threshold=10000)
 
 def cos_dist(X1 , X2 ):
-    return cosine(X1,X2)
+    mode1= 0
+    mode2= 0 
+    prod= 0
+    for i in range( len(X1) ):
+        if X1[i]==99.99 or X2[i]==99.99:
+            continue
+        else:
+            mode1 += X1[i]**2
+            mode2 += X2[i]**2
+            prod += X1[i]*X2[i]
+    
+    return 1.0 - (prod)/( sqrt(mode1) * sqrt(mode2) )
 
 def classify( X , X_train, Y_train):
     index = 0
