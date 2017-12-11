@@ -26,11 +26,24 @@ def cos_dist(X1 , X2 ):
     
     return 1.0 - (prod)/( sqrt(mode1) * sqrt(mode2) )
 
+def jaccard_dist(X1 , X2):
+    union = 0.0
+    intersection = 0.0
+    for i in range( len(X1) ):
+        if X1[i]==99.99 or X2[i]==99.99:
+            continue
+        elif X1[i]==X2[i]:
+            intersection += 1
+        union += 1
+        
+    return 1 - intersection/union
+
 def classify( X , X_train, Y_train):
     index = 0
     min_dist = 1
     for i in range(len(X_train)):
-        dist = cos_dist(X_train[i],X)
+        #dist = cos_dist(X_train[i],X)
+        dist = jaccard_dist(X_train[i],X)
         if dist < min_dist:
             index = i 
             min_dist = dist
@@ -41,12 +54,14 @@ def multi_classify(X, X_train, Y_train):
     indices = []
     min_dist = 1
     for i in range(len(X_train)):
-        dist = cos_dist(X_train[i], X)
+        #dist = cos_dist(X_train[i], X)
+        dist = jaccard_dist(X_train[i],X)
         indices.append((i, dist))
 
     indices = sorted(indices, key = lambda x: x[1])
-    k = 5
-    top_k = indices[:5]
+    k = 31
+    #print(k)
+    top_k = indices[:k]
     ys = []
     for i in range(len(top_k)):
         index, dist = top_k[i]
