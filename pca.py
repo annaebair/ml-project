@@ -20,7 +20,6 @@ def apply_SparsePCA(X, num_components, alpha=1 ,ridge_alpha=0.1):
     return X_transform
 
 
-	
 
 X_train, Y_train = get_imputed_traindata() 
 # X,Y = clean_data(.95,X_train,Y_train)
