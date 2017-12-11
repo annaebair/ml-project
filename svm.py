@@ -59,11 +59,26 @@ def train_pca_SVM(num_components):
 	#train SVM with PCA model 
 	print ("------training PCA model----------")
 
-	X_transform = pca.apply_pca(X_train, num_components)
+	X_train_transform = pca.apply_pca(X_train, num_components)
+	X_val_transform = pca.apply_pca(X_val, num_components)
 
 	basic_svm = LinearSVC()
-	basic_svm.fit(X_transform, y_train)
-	print("SVM Score with PCA with ", num_components, "components: ", basic_svm.score(X_val, y_val))
+	basic_svm.fit(X_train_transform, y_train)
+	print("SVM Score with PCA with ", num_components, "components: ", basic_svm.score(X_val_transform, y_val))
+
+
+
+def train_pca_L1SVM(num_components):
+
+	#train SVM with PCA model 
+	print ("------training PCA model----------")
+
+	X_train_transform = pca.apply_pca(X_train, num_components)
+	X_val_transform = pca.apply_pca(X_val, num_components)
+
+	svm = LinearSVC(penalty= "l1", dual=False)
+	svm.fit(X_train_transform, y_train)
+	print("L1 SVM Score with PCA with ", num_components, "components: ", svm.score(X_val_transform, y_val))
 
 
 if __name__ == "__main__":
@@ -82,7 +97,8 @@ if __name__ == "__main__":
 		train_RBFSVM()
 		tune_SVM()
 
-		train_pca_SVM(20)
+		train_pca_SVM(num_components = 120)
+		train_pca_L1SVM(num_components = 120)
 
 	# else:
 	#     print ("--------------- LOADING DATA -------------------")
