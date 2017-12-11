@@ -1,12 +1,14 @@
 from sklearn import linear_model 
 from sklearn.model_selection import GridSearchCV
 import numpy as np
-from read_data import *
 from math import *
 from plotBoundary import *
+from read_data import *
+from imputation import *
 
-X_train, y_train = get_traindata() 
-X_val, y_val = get_valdata()
+
+X_train, y_train = get_imputed_traindata() 
+X_val, y_val = get_imputed_valdata()
 
 X_train_and_val = np.concatenate((X_train, X_val))
 y_train_and_val = np.concatenate((y_train, y_val))
@@ -42,4 +44,14 @@ Output of GridSearchCV:
 Best score:  0.826570048309
 Best C:  0.1
 Best penalty:  l1
+
+With Imputed Data:
+
+LR Score:  0.6675
+Output of GridSearchCV:
+
+Best score:  0.666166166166
+Best C:  0.1
+Best penalty:  l1
+
 '''
