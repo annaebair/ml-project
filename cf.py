@@ -34,7 +34,9 @@ def jaccard_dist(X1 , X2):
             continue
         elif X1[i]==X2[i]:
             intersection += 1
-        union += 1
+            union += 1
+        else:
+            union += 2
         
     return 1 - intersection/union
 
