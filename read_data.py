@@ -20,6 +20,8 @@ def read_dataset():
 	headers.remove('SMAQUEX.y')
 	np.delete(data, weird_col_index, axis=1)
 
+	# print(data.shape)
+
 	return data, headers
 
 
@@ -114,11 +116,14 @@ def clean_data(sparsity, X, Y, headers):
 def clean_column(sparsity, X, Y, headers): 
     remove = []
     count = 0
+    full_headers = []
     i = 0
     L = len(X[0])
     header_index = 0
     while i < L:
         n = 1.0 - np.count_nonzero(X[:,i] == 99.99) * 1.0 / len(X)
+        if n == 1.0:
+        	full_headers.append(headers[header_index])
         if n <= sparsity:
             remove.append(header_index)
             X= np.delete(X,i,1)
@@ -128,14 +133,18 @@ def clean_column(sparsity, X, Y, headers):
             i += 1
         header_index += 1
     headers = np.delete(headers, remove)
+    print("col full: ", full_headers)
     return count, X, Y, headers
 
 def clean_row(sparsity, X, Y):
     count = 0
+    full = 0
     i = 0
     L = len(X)
     while i < L:
         n = 1.0 - np.count_nonzero(X[i] == 99.99) * 1.0 / len(X[i])
+        if n == 1.0:
+        	full += 1
         if n <= sparsity:
             X = np.delete(X, i, 0)
             Y = np.delete(Y, i)
@@ -143,7 +152,7 @@ def clean_row(sparsity, X, Y):
         else:
             count += 1
             i += 1
-            
+    print("full: ", full)      
     return count, X, Y
     
 
@@ -169,7 +178,7 @@ def get_data():
 
 
 def get_split_data():
-	sparsity = 0.9
+	sparsity = 0.5
 	X, Y, headers = get_data()
 	X, Y, headers = clean_data(sparsity, X, Y, headers)
 	X_train, Y_train, X_val, Y_val, X_test, Y_test = _split_data(X, Y)
