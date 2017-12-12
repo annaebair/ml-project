@@ -4,31 +4,30 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 import read_data
 import pca
-from imputation import get_imputed_traindata, get_imputed_valdata
+from imputation import *
 
 USE_IMPUTED_DATA = True
 
 def train_basicSVM():
 
 	#basic SVM model
-	print ("------training basic SVM L2 model----------")
 
 	basic_svm = LinearSVC()
 	basic_svm.fit(X_train, y_train)
 	print("Basic SVM Score: ", basic_svm.score(X_val, y_val))
+	print("Basic SVM Score Test: ", basic_svm.score(X_test, y_test))
 
 
 def train_L1SVM():
 	# L1 regularized SVM 
-	print ("------training SVM L1 model----------")
-	svm_lasso = LinearSVC(penalty= "l1", dual=False)
+	svm_lasso = LinearSVC(penalty= "l1", dual=False, C=0.1)
 	svm_lasso.fit(X_train, y_train)
 	print("SVM with L1 regularization Score: ", svm_lasso.score(X_val, y_val))
+	print("Best L1 regularization Test Score: ", svm_lasso.score(X_test, y_test))
 
 
 def tune_SVM():
 	# tuning hyperparameters
-	print ("-------- tuning hyperparameters---------")
 
 	param_grid = {'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000], 
 	              'penalty': ['l1', 'l2'],
@@ -46,7 +45,6 @@ def tune_SVM():
 
 
 def train_RBFSVM():
-    print ("-------- RBF Kernel SVM ---------")
 
     rbf_svm = SVC()
     rbf_svm.fit(X_train, y_train)
@@ -56,7 +54,6 @@ def train_RBFSVM():
 def train_pca_SVM(num_components):
 
 	#train SVM with PCA model 
-	print ("------training PCA model----------")
 
 	X_train_transform = pca.apply_pca(X_train, num_components)
 	X_val_transform = pca.apply_pca(X_val, num_components)
@@ -70,7 +67,6 @@ def train_pca_SVM(num_components):
 def train_pca_L1SVM(num_components):
 
 	#train SVM with PCA model 
-	print ("------training PCA model----------")
 
 	X_train_transform = pca.apply_pca(X_train, num_components)
 	X_val_transform = pca.apply_pca(X_val, num_components)
@@ -80,16 +76,26 @@ def train_pca_L1SVM(num_components):
 	print("L1 SVM Score with PCA with ", num_components, "components: ", svm.score(X_val_transform, y_val))
 
 
+def train_SparsePCA_SVM(num_components):
+
+	#train SVM with PCA model 
+
+	X_transform = pca.apply_SparsePCA(X_train, num_components)
+
+	basic_svm = LinearSVC()
+	basic_svm.fit(X_transform, y_train)
+	print("SVM Score with SparsePCA with ", num_components, "components: ", basic_svm.score(X_val, y_val))
+
+
 if __name__ == "__main__":
 
 	if USE_IMPUTED_DATA:
-		print ("--------------- LOADING DATA -------------------")
 		X_train, y_train = get_imputed_traindata()
 		X_val, y_val = get_imputed_valdata()
+		X_test, y_test = get_imputed_testdata()
 		X_train_and_val = np.concatenate((X_train, X_val))
 		y_train_and_val = np.concatenate((y_train, y_val))
 
-		print ("--------------- DATA IS LOADED -------------------")
 
 		train_basicSVM()
 		train_L1SVM()
@@ -116,35 +122,6 @@ if __name__ == "__main__":
 	#     train_pca_SVM(num_components = 20)
 
 
-def train_SparsePCA_SVM(num_components):
-
-	#train SVM with PCA model 
-	print ("------training SparsePCA model----------")
-
-	X_transform = pca.apply_SparsePCA(X_train, num_components)
-
-	basic_svm = LinearSVC()
-	basic_svm.fit(X_transform, y_train)
-	print("SVM Score with SparsePCA with ", num_components, "components: ", basic_svm.score(X_val, y_val))
-
-
-if __name__ == "__main__":
-
-	if USE_IMPUTED_DATA:
-		print ("--------------- LOADING DATA -------------------")
-		X_train, y_train = get_imputed_traindata()
-		X_val, y_val = get_imputed_valdata()
-		X_train_and_val = np.concatenate((X_train, X_val))
-		y_train_and_val = np.concatenate((y_train, y_val))
-
-		print ("--------------- DATA IS LOADED -------------------")
-
-		train_basicSVM()
-		train_L1SVM()
-		train_RBFSVM()
-		tune_SVM()
-
-		train_SparsePCA_SVM(20)
 
 
 
